@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#D70A0A">
+    <title>{% block title %}Abhimanyu Learning Space{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="{{ url_for('index') }}">
+                    <div class="logo-container">
+                        <img src="{{ url_for('static', filename='images/cusat-logo.svg') }}" alt="CUSAT" class="nav-logo" onerror="this.style.display='none'">
+                        <img src="{{ url_for('static', filename='images/abhimanyu-logo.svg') }}" alt="Abhimanyu" class="nav-logo" onerror="this.style.display='none'">
+                        <div class="brand-text">
+                            <h1>ABHIMANYU <span class="text-crimson">LEARNING SPACE</span></h1>
+                            <p>Knowledge is a Weapon, Education is Liberation</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span><span></span><span></span>
+            </button>
+            
+            <div class="nav-menu" id="navMenu">
+                <div class="nav-links">
+                    <div class="dropdown">
+                        <button class="dropdown-btn">📚 Library ▼</button>
+                        <div class="dropdown-content">
+                            {% for subject in subjects %}
+                            <a href="{{ url_for('subject_page', path=subject.path) }}">{{ subject.icon }} {{ subject.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <a href="{{ url_for('resources_page') }}" class="{% if active_page == 'resources' %}active{% endif %}">All Resources</a>
+                    <a href="{{ url_for('discussions') }}" class="{% if active_page == 'discussions' %}active{% endif %}">💬 Discussions</a>
+                    <a href="{{ url_for('upload_resource') }}" class="upload-btn">⬆️ Upload Resource</a>
+                    <a href="mailto:sfiimscsubcommittee25@gmail.com" class="contact-link">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        {{ message }}
+                        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>Abhimanyu Learning Space</h3>
+                    <p>A focused academic environment for CUSAT students featuring a professional digital library.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{{ url_for('library') }}">Professional Library</a></li>
+                        <li><a href="{{ url_for('upload_resource') }}">Upload Resources</a></li>
+                        <li><a href="{{ url_for('discussions') }}">Discussion Forum</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="https://whatsapp.com/channel/0029VaesYjiHgZWZT1NwWo1z" target="_blank">💬 WhatsApp Channel</a></li>
+                        <li><a href="https://www.instagram.com/sfi_imsc_subcommittee_cusat" target="_blank">📸 Instagram</a></li>
+                        <li><a href="mailto:sfiimscsubcommittee25@gmail.com">✉️ sfiimscsubcommittee25@gmail.com</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Managed By</h4>
+                    <p>SFI IMSC Sub-Committee<br>Cochin University of Science and Technology</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Abhimanyu Learning Space. Made with ❤️ by Students, for Students.</p>
+                <p class="tagline">Knowledge is a Weapon, Education is Liberation.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
