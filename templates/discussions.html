@@ -13,48 +13,34 @@
 <section class="discussions-section">
     <div class="container">
         <div class="discussions-header">
-            <div class="filters-bar">
-                <select id="subjectFilter" onchange="applyFilters()">
-                    <option value="">All Subjects</option>
-                    {% for subject in subjects %}
-                    <option value="{{ subject.name }}" {% if current_subject == subject.name %}selected{% endif %}>{{ subject.name }}</option>
-                    {% endfor %}
-                </select>
-                <select id="categoryFilter" onchange="applyFilters()">
-                    <option value="">All Categories</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat|capitalize }}</option>
-                    {% endfor %}
-                </select>
-            </div>
             <button class="btn-primary" id="newThreadBtn">+ Start New Discussion</button>
         </div>
         
         <div class="threads-list">
-            {% for thread in threads %}
+            {% for discussion in discussions %}
             <div class="thread-card">
                 <div class="thread-info">
                     <div class="thread-title">
-                        {% if thread.is_pinned %}
+                        {% if discussion.is_pinned %}
                         <span class="pin-icon">📌</span>
                         {% endif %}
-                        <a href="{{ url_for('view_thread', thread_id=thread.id) }}">{{ thread.title }}</a>
+                        <a href="{{ url_for('view_discussion', discussion_id=discussion.id) }}">{{ discussion.title }}</a>
                     </div>
                     <div class="thread-meta">
-                        <span class="thread-category">{{ thread.category|capitalize }}</span>
-                        <span class="thread-subject">{{ thread.subject }}</span>
-                        <span class="thread-author">by {{ thread.author }}</span>
-                        <span class="thread-date">{{ thread.created_at.strftime('%b %d, %Y') }}</span>
+                        <span class="thread-category">{{ discussion.category|capitalize }}</span>
+                        <span class="thread-subject">{{ discussion.subject }}</span>
+                        <span class="thread-author">by {{ discussion.author }}</span>
+                        <span class="thread-date">{{ discussion.created_at.strftime('%b %d, %Y') if discussion.created_at else 'Recent' }}</span>
                     </div>
-                    <p class="thread-preview">{{ thread.content[:150] }}{% if thread.content|length > 150 %}...{% endif %}</p>
+                    <p class="thread-preview">{{ discussion.content[:150] }}{% if discussion.content|length > 150 %}...{% endif %}</p>
                 </div>
                 <div class="thread-stats">
                     <div class="stat">
-                        <span class="stat-value">{{ thread.reply_count }}</span>
+                        <span class="stat-value">{{ discussion.reply_count }}</span>
                         <span class="stat-label">Replies</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">{{ thread.view_count }}</span>
+                        <span class="stat-value">{{ discussion.view_count }}</span>
                         <span class="stat-label">Views</span>
                     </div>
                 </div>
@@ -69,7 +55,7 @@
 </section>
 
 <!-- New Thread Modal -->
-<div class="modal" id="newThreadModal">
+<div class="modal" id="newThreadModal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
             <h2>Start New Discussion</h2>
@@ -122,65 +108,204 @@
         </form>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_scripts %}
+<style>
+.discussions-section {
+    padding: 60px 0;
+    background: #F8FAFC;
+}
+
+.discussions-header {
+    margin-bottom: 32px;
+    text-align: right;
+}
+
+.threads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.thread-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+}
+
+.thread-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.thread-info {
+    flex: 1;
+}
+
+.thread-title a {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0A192F;
+    text-decoration: none;
+}
+
+.thread-title a:hover {
+    color: #D70A0A;
+}
+
+.pin-icon {
+    margin-right: 8px;
+}
+
+.thread-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 8px 0;
+    font-size: 0.75rem;
+}
+
+.thread-category {
+    background: #F1F5F9;
+    padding: 2px 8px;
+    border-radius: 20px;
+    color: #475569;
+}
+
+.thread-subject {
+    color: #64748B;
+}
+
+.thread-author {
+    color: #64748B;
+}
+
+.thread-date {
+    color: #94A3B8;
+}
+
+.thread-preview {
+    font-size: 0.875rem;
+    color: #64748B;
+    margin-top: 8px;
+}
+
+.thread-stats {
+    display: flex;
+    gap: 20px;
+    text-align: center;
+}
+
+.thread-stats .stat-value {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.thread-stats .stat-label {
+    font-size: 0.7rem;
+    color: #64748B;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 24px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #E2E8F0;
+}
+</style>
+
 <script>
-    const modal = document.getElementById('newThreadModal');
-    const newThreadBtn = document.getElementById('newThreadBtn');
-    const closeBtns = document.querySelectorAll('.modal-close, .modal-cancel');
-    
-    newThreadBtn?.addEventListener('click', () => {
-        modal.style.display = 'flex';
+const modal = document.getElementById('newThreadModal');
+const newThreadBtn = document.getElementById('newThreadBtn');
+const closeBtns = document.querySelectorAll('.modal-close, .modal-cancel');
+
+newThreadBtn?.addEventListener('click', () => {
+    modal.style.display = 'flex';
+});
+
+closeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        modal.style.display = 'none';
     });
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+});
+
+document.getElementById('newThreadForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
     
-    closeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            modal.style.display = 'none';
+    const data = {
+        title: document.getElementById('threadTitle').value,
+        subject: document.getElementById('threadSubject').value,
+        category: document.getElementById('threadCategory').value,
+        content: document.getElementById('threadContent').value,
+        author: document.getElementById('threadAuthor').value,
+        author_email: document.getElementById('threadAuthorEmail').value
+    };
+    
+    try {
+        const response = await fetch('/discussions/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         });
-    });
-    
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-    
-    document.getElementById('newThreadForm')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
         
-        const data = {
-            title: document.getElementById('threadTitle').value,
-            subject: document.getElementById('threadSubject').value,
-            category: document.getElementById('threadCategory').value,
-            content: document.getElementById('threadContent').value,
-            author: document.getElementById('threadAuthor').value,
-            author_email: document.getElementById('threadAuthorEmail').value
-        };
-        
-        try {
-            const response = await fetch('/discussions/new', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            
-            const result = await response.json();
-            if (result.success) {
-                window.location.href = `/discussions/${result.thread_id}`;
-            } else {
-                alert('Error creating thread. Please try again.');
-            }
-        } catch (error) {
+        const result = await response.json();
+        if (result.success) {
+            window.location.href = `/discussions/${result.id}`;
+        } else {
             alert('Error creating thread. Please try again.');
         }
-    });
-    
-    function applyFilters() {
-        const subject = document.getElementById('subjectFilter').value;
-        const category = document.getElementById('categoryFilter').value;
-        let url = '/discussions?';
-        if (subject) url += `subject=${encodeURIComponent(subject)}&`;
-        if (category) url += `category=${category}&`;
-        window.location.href = url;
+    } catch (error) {
+        alert('Error creating thread. Please try again.');
     }
+});
 </script>
 {% endblock %}
