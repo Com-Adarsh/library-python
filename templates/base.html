@@ -7,18 +7,14 @@
     <title>{% block title %}Abhimanyu Learning Space{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="nav-brand">
                 <a href="{{ url_for('index') }}">
                     <div class="logo-container">
-                        <img src="{{ url_for('static', filename='images/cusat-logo.svg') }}" alt="CUSAT" class="nav-logo" onerror="this.style.display='none'">
-                        <img src="{{ url_for('static', filename='images/abhimanyu-logo.svg') }}" alt="Abhimanyu" class="nav-logo" onerror="this.style.display='none'">
                         <div class="brand-text">
                             <h1>ABHIMANYU <span class="text-crimson">LEARNING SPACE</span></h1>
                             <p>Knowledge is a Weapon, Education is Liberation</p>
@@ -44,32 +40,15 @@
                     <a href="{{ url_for('resources_page') }}" class="{% if active_page == 'resources' %}active{% endif %}">All Resources</a>
                     <a href="{{ url_for('discussions') }}" class="{% if active_page == 'discussions' %}active{% endif %}">💬 Discussions</a>
                     <a href="{{ url_for('upload_resource') }}" class="upload-btn">⬆️ Upload Resource</a>
-                    <a href="mailto:sfiimscsubcommittee25@gmail.com" class="contact-link">Contact</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="flash-message flash-{{ category }}">
-                        {{ message }}
-                        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-
-    <!-- Main Content -->
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
@@ -90,7 +69,7 @@
                     <ul>
                         <li><a href="https://whatsapp.com/channel/0029VaesYjiHgZWZT1NwWo1z" target="_blank">💬 WhatsApp Channel</a></li>
                         <li><a href="https://www.instagram.com/sfi_imsc_subcommittee_cusat" target="_blank">📸 Instagram</a></li>
-                        <li><a href="mailto:sfiimscsubcommittee25@gmail.com">✉️ sfiimscsubcommittee25@gmail.com</a></li>
+                        <li><a href="mailto:sfiimscsubcommittee25@gmail.com">✉️ Contact Us</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
