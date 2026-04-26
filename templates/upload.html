@@ -13,16 +13,16 @@
 <section class="upload-section">
     <div class="container">
         <div class="upload-container">
-            <form method="POST" action="{{ url_for('upload_resource') }}" enctype="multipart/form-data" id="uploadForm">
+            <form id="uploadForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Document Title <span class="required">*</span></label>
-                    <input type="text" name="title" placeholder="e.g., Mid-Semester Physics Exam 2024" required>
+                    <input type="text" name="title" id="title" placeholder="e.g., Mid-Semester Physics Exam 2024" required>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label>Subject <span class="required">*</span></label>
-                        <select name="subject" required>
+                        <select name="subject" id="subject" required>
                             <option value="">Select Subject</option>
                             {% for subject in subjects %}
                             <option value="{{ subject.name }}">{{ subject.name }}</option>
@@ -31,7 +31,7 @@
                     </div>
                     <div class="form-group">
                         <label>Semester <span class="required">*</span></label>
-                        <select name="semester" required>
+                        <select name="semester" id="semester" required>
                             <option value="">Select Semester</option>
                             {% for sem in semesters %}
                             <option value="{{ sem.id }}">{{ sem.name }}</option>
@@ -42,7 +42,7 @@
                 
                 <div class="form-group">
                     <label>Resource Type <span class="required">*</span></label>
-                    <div class="category-buttons">
+                    <div class="category-buttons" id="categoryButtons">
                         {% for cat in categories %}
                         <button type="button" class="category-btn" data-value="{{ cat.value }}">
                             {{ cat.icon }} {{ cat.label }}
@@ -54,17 +54,17 @@
                 
                 <div class="form-group">
                     <label>Description (Optional)</label>
-                    <textarea name="description" rows="4" placeholder="Add any relevant details about this resource..."></textarea>
+                    <textarea name="description" id="description" rows="4" placeholder="Add any relevant details about this resource..."></textarea>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label>Your Name <span class="required">*</span></label>
-                        <input type="text" name="uploader_name" placeholder="Full name" required>
+                        <input type="text" name="uploader_name" id="uploaderName" placeholder="Full name" required>
                     </div>
                     <div class="form-group">
                         <label>Your Email <span class="required">*</span></label>
-                        <input type="email" name="uploader_email" placeholder="you@example.com" required>
+                        <input type="email" name="uploader_email" id="uploaderEmail" placeholder="you@example.com" required>
                     </div>
                 </div>
                 
@@ -92,11 +92,13 @@
                     <span class="progress-text">0%</span>
                 </div>
                 
+                <div id="messageContainer"></div>
+                
                 <button type="submit" class="btn-primary btn-large">Submit for Review</button>
                 
                 <div class="upload-info">
-                    <p>📌 All submissions are reviewed by the SFI IMSC Sub-Committee before publication.</p>
-                    <p>✉️ You will receive a confirmation email once your resource is approved.</p>
+                    <p>📌 All submissions are reviewed before publication.</p>
+                    <p>✉️ You will be notified once your resource is approved.</p>
                 </div>
             </form>
         </div>
@@ -106,15 +108,15 @@
 
 {% block extra_scripts %}
 <script>
-    // Category selection
-    const categoryBtns = document.querySelectorAll('.category-btn');
-    const categoryInput = document.getElementById('category');
+    let selectedCategory = null;
     
-    categoryBtns.forEach(btn => {
+    // Category selection
+    document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            categoryBtns.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            categoryInput.value = btn.dataset.value;
+            selectedCategory = btn.dataset.value;
+            document.getElementById('category').value = selectedCategory;
         });
     });
     
@@ -150,11 +152,11 @@
     
     function handleFile(file) {
         if (file.type !== 'application/pdf') {
-            alert('Only PDF files are allowed.');
+            showMessage('Only PDF files are allowed.', 'error');
             return;
         }
         if (file.size > 50 * 1024 * 1024) {
-            alert('File size exceeds 50MB limit.');
+            showMessage('File size exceeds 50MB limit.', 'error');
             return;
         }
         
@@ -163,6 +165,7 @@
         fileDropMessage.style.display = 'none';
         filePreview.style.display = 'flex';
         fileDropArea.classList.add('has-file');
+        hideMessage();
     }
     
     document.querySelector('.remove-file')?.addEventListener('click', () => {
@@ -172,23 +175,46 @@
         fileDropArea.classList.remove('has-file');
     });
     
-    // Form submission with progress
+    function showMessage(message, type) {
+        const container = document.getElementById('messageContainer');
+        container.innerHTML = `<div class="flash-message flash-${type}">${message}<button class="flash-close" onclick="this.parentElement.remove()">×</button></div>`;
+    }
+    
+    function hideMessage() {
+        const container = document.getElementById('messageContainer');
+        container.innerHTML = '';
+    }
+    
+    // Form submission
     const form = document.getElementById('uploadForm');
     const progressContainer = document.querySelector('.progress-container');
     const progressBar = document.querySelector('.progress-bar');
     const progressText = document.querySelector('.progress-text');
     
-    form.addEventListener('submit', (e) => {
-        if (!categoryInput.value) {
-            e.preventDefault();
-            alert('Please select a resource type');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const title = document.getElementById('title').value;
+        const subject = document.getElementById('subject').value;
+        const semester = document.getElementById('semester').value;
+        const uploaderName = document.getElementById('uploaderName').value;
+        const uploaderEmail = document.getElementById('uploaderEmail').value;
+        const file = fileInput.files[0];
+        
+        if (!title || !subject || !semester || !selectedCategory || !uploaderName || !uploaderEmail || !file) {
+            showMessage('Please fill in all required fields.', 'error');
             return;
         }
-        if (!fileInput.files.length) {
-            e.preventDefault();
-            alert('Please select a PDF file');
-            return;
-        }
+        
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('subject', subject);
+        formData.append('semester', semester);
+        formData.append('category', selectedCategory);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('uploader_name', uploaderName);
+        formData.append('uploader_email', uploaderEmail);
+        formData.append('file', file);
         
         progressContainer.style.display = 'block';
         let progress = 0;
@@ -198,6 +224,35 @@
             progressText.textContent = progress + '%';
             if (progress >= 100) clearInterval(interval);
         }, 200);
+        
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showMessage('Resource submitted successfully! Our team will review it shortly.', 'success');
+                form.reset();
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                selectedCategory = null;
+                fileDropMessage.style.display = 'block';
+                filePreview.style.display = 'none';
+                fileDropArea.classList.remove('has-file');
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressBar.style.width = '0%';
+                }, 2000);
+            } else {
+                showMessage(result.error || 'Upload failed. Please try again.', 'error');
+                progressContainer.style.display = 'none';
+            }
+        } catch (error) {
+            showMessage('Upload failed. Please try again.', 'error');
+            progressContainer.style.display = 'none';
+        }
     });
 </script>
 {% endblock %}
