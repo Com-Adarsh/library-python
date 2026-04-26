@@ -1,0 +1,22 @@
+abhimanyu-learning-space/
+├── app.py                 # Main Flask application
+├── requirements.txt       # Python dependencies
+├── database.py           # Database models and operations
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── main.js
+│   └── images/
+│       ├── cusat-logo.svg
+│       └── abhimanyu-logo.svg
+├── templates/
+│   ├── base.html
+│   ├── index.html
+│   ├── library.html
+│   ├── upload.html
+│   ├── subject.html
+│   └── resources.html
+├── uploads/              # Temporary upload folder
+└── instance/
+    └── library.db        # SQLite database (auto-created)
