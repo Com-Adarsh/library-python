@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Professional Library - Abhimanyu Learning Space{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Professional Library</h1>
+        <p>9 disciplines, 10 semesters, verified resources for IMSC students</p>
+    </div>
+</div>
+
+<section class="library-section">
+    <div class="container">
+        <div class="subjects-grid">
+            {% for subject in subjects %}
+            <a href="{{ url_for('subject_page', path=subject.path) }}" class="subject-card" style="border-top-color: {{ subject.color }}">
+                <div class="subject-icon">{{ subject.icon }}</div>
+                <h3>{{ subject.name }}</h3>
+                <p>{{ subject.description }}</p>
+                <span class="card-arrow">→</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <h2>Missing a Resource?</h2>
+        <p>Help the community by contributing your study materials</p>
+        <a href="{{ url_for('upload_resource') }}" class="btn-primary">Upload Now</a>
+    </div>
+</section>
+{% endblock %}
