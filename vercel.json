@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "api/*.py": {
+      "maxDuration": 10,
+      "memory": 1024
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "SUPABASE_URL": "@supabase_url",
+    "SUPABASE_KEY": "@supabase_key",
+    "ADMIN_EMAIL": "@admin_email"
+  }
+}
