@@ -3,14 +3,9 @@
 {% block title %}Abhimanyu Learning Space - Professional Digital Library{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
 <section class="hero">
     <div class="hero-overlay"></div>
     <div class="container hero-content">
-        <div class="hero-logos">
-            <img src="{{ url_for('static', filename='images/cusat-logo.svg') }}" alt="CUSAT" onerror="this.style.display='none'">
-            <img src="{{ url_for('static', filename='images/abhimanyu-logo.svg') }}" alt="Abhimanyu" onerror="this.style.display='none'">
-        </div>
         <h1>ABHIMANYU <span class="text-crimson">LEARNING SPACE</span></h1>
         <p class="hero-subtitle">Knowledge is a Weapon, Education is Liberation.</p>
         <p class="hero-description">A focused academic environment featuring a professional digital library for CUSAT students.</p>
@@ -21,7 +16,6 @@
     </div>
 </section>
 
-<!-- Stats Section -->
 <section class="stats-section">
     <div class="container">
         <div class="stats-grid" id="statsContainer">
@@ -45,7 +39,6 @@
     </div>
 </section>
 
-<!-- Library Grid -->
 <section class="library-section">
     <div class="container">
         <div class="section-header">
@@ -66,7 +59,6 @@
     </div>
 </section>
 
-<!-- Recent Resources -->
 <section class="recent-section">
     <div class="container">
         <div class="section-header">
@@ -86,7 +78,7 @@
                 <p class="resource-description">{{ resource.description[:100] if resource.description else 'No description' }}</p>
                 <div class="resource-footer">
                     <span>by {{ resource.uploader_name }}</span>
-                    <a href="{{ url_for('download_resource', resource_id=resource.id) }}" class="download-link">Download ↓</a>
+                    <a href="{{ resource.file_url }}" target="_blank" class="download-link" rel="noopener noreferrer">View PDF →</a>
                 </div>
             </div>
             {% else %}
@@ -96,19 +88,12 @@
             </div>
             {% endfor %}
         </div>
-        
-        {% if recent_resources %}
-        <div class="view-all">
-            <a href="{{ url_for('resources_page') }}" class="btn-secondary">View All Resources →</a>
-        </div>
-        {% endif %}
     </div>
 </section>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-    // Fetch stats from API
     fetch('/api/stats')
         .then(res => res.json())
         .then(data => {
