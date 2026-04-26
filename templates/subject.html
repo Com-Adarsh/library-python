@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}{{ subject.name }} - Abhimanyu Learning Space{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background: linear-gradient(135deg, {{ subject.color }}20, {{ subject.color }}40)">
+    <div class="container">
+        <div class="subject-header">
+            <span class="subject-icon-large">{{ subject.icon }}</span>
+            <div>
+                <h1>{{ subject.name }}</h1>
+                <p>{{ subject.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="resources-section">
+    <div class="container">
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Filter by Semester:</label>
+                <select id="semesterFilter" onchange="filterResources()">
+                    <option value="">All Semesters</option>
+                    {% for sem in semesters %}
+                    <option value="{{ sem.id }}">{{ sem.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Resource Type:</label>
+                <select id="categoryFilter" onchange="filterResources()">
+                    <option value="">All Types</option>
+                    <option value="question_paper">Question Papers</option>
+                    <option value="textbook">Textbooks</option>
+                    <option value="student_notes">Student Notes</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="resources-grid" id="resourcesContainer">
+            {% for resource in resources %}
+            <div class="resource-card" data-semester="{{ resource.semester }}" data-category="{{ resource.category }}">
+                <div class="resource-icon">
+                    {% if resource.category == 'question_paper' %}📄
+                    {% elif resource.category == 'textbook' %}📚
+                    {% else %}📝
+                    {% endif %}
+                </div>
+                <h3>{{ resource.title }}</h3>
+                <div class="resource-meta">
+                    <span>Semester {{ resource.semester }}</span>
+                    <span>{{ resource.file_size_mb }} MB</span>
+                </div>
+                <p class="resource-description">{{ resource.description[:100] if resource.description else 'No description' }}</p>
+                <div class="resource-footer">
+                    <span>by {{ resource.uploader_name }}</span>
+                    <a href="{{ url_for('download_resource', resource_id=resource.id) }}" class="download-link">Download ↓</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No resources available for {{ subject.name }} yet.</p>
+                <a href="{{ url_for('upload_resource') }}" class="btn-primary">Be the first to contribute</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function filterResources() {
+        const semester = document.getElementById('semesterFilter').value;
+        const category = document.getElementById('categoryFilter').value;
+        const cards = document.querySelectorAll('.resource-card');
+        
+        cards.forEach(card => {
+            const cardSemester = card.dataset.semester;
+            const cardCategory = card.dataset.category;
+            let show = true;
+            
+            if (semester && cardSemester != semester) show = false;
+            if (category && cardCategory != category) show = false;
+            
+            card.style.display = show ? 'block' : 'none';
+        });
+    }
+</script>
+{% endblock %}
