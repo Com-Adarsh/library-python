@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}All Resources - Abhimanyu Learning Space{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>All Resources</h1>
+        <p>Browse all available study materials</p>
+    </div>
+</div>
+
+<section class="resources-section">
+    <div class="container">
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Subject:</label>
+                <select id="subjectFilter" onchange="applyFilters()">
+                    <option value="">All Subjects</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.name }}" {% if current_subject == subject.name %}selected{% endif %}>{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Semester:</label>
+                <select id="semesterFilter" onchange="applyFilters()">
+                    <option value="">All Semesters</option>
+                    {% for sem in semesters %}
+                    <option value="{{ sem.id }}" {% if current_semester == sem.id %}selected{% endif %}>{{ sem.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Type:</label>
+                <select id="categoryFilter" onchange="applyFilters()">
+                    <option value="">All Types</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.value }}" {% if current_category == cat.value %}selected{% endif %}>{{ cat.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button class="btn-clear" onclick="clearFilters()">Clear Filters</button>
+        </div>
+        
+        <div class="resources-list" id="resourcesContainer">
+            {% for resource in resources %}
+            <div class="resource-item">
+                <div class="resource-info">
+                    <div class="resource-icon">
+                        {% if resource.category == 'question_paper' %}📄
+                        {% elif resource.category == 'textbook' %}📚
+                        {% else %}📝
+                        {% endif %}
+                    </div>
+                    <div class="resource-details">
+                        <h3>{{ resource.title }}</h3>
+                        <div class="resource-badges">
+                            <span class="badge subject-badge">{{ resource.subject }}</span>
+                            <span class="badge semester-badge">Semester {{ resource.semester }}</span>
+                            <span class="badge category-badge">
+                                {% if resource.category == 'question_paper' %}Question Paper
+                                {% elif resource.category == 'textbook' %}Textbook
+                                {% else %}Student Notes
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="resource-description">{{ resource.description[:150] if resource.description else 'No description' }}</p>
+                        <div class="resource-meta">
+                            <span>👤 {{ resource.uploader_name }}</span>
+                            <span>📅 {{ resource.created_at.strftime('%b %d, %Y') if resource.created_at else 'Unknown' }}</span>
+                            <span>⬇️ {{ resource.download_count }} downloads</span>
+                            <span>📄 {{ resource.file_size_mb }} MB</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="resource-action">
+                    <a href="{{ url_for('download_resource', resource_id=resource.id) }}" class="download-btn">Download PDF ↓</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No resources found matching your criteria.</p>
+                <a href="{{ url_for('upload_resource') }}" class="btn-primary">Upload a Resource</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="pagination">
+            <span class="results-count">{{ resources|length }} resources found</span>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function applyFilters() {
+        const subject = document.getElementById('subjectFilter').value;
+        const semester = document.getElementById('semesterFilter').value;
+        const category = document.getElementById('categoryFilter').value;
+        
+        let url = '/resources?';
+        if (subject) url += `subject=${encodeURIComponent(subject)}&`;
+        if (semester) url += `semester=${semester}&`;
+        if (category) url += `category=${category}&`;
+        
+        window.location.href = url;
+    }
+    
+    function clearFilters() {
+        window.location.href = '/resources';
+    }
+</script>
+{% endblock %}
